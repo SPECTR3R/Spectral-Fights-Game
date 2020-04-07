@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'Espionage';
+  src: url('../fonts/Espionage.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Metal Gear';
+  src: url('../fonts/Metal\ Gear.TTF') format('truetype');
+}
+@font-face {
+  font-family: 'Metal Gear Solid 2';
+  src: url('../fonts/Metal\ Gear\ Solid\ 2.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'MGS2 Menu';
+  src: url('../fonts/MGS2\ Menu.TTF') format('truetype');
+}
+
+body {
+  text-align: center;
+  background-image: url('../images/webBG.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+h1 {
+  color: rgb(255, 255, 255);
+  font-size: 35px;
+  font-family: 'MGS2 Menu';
+  text-transform: uppercase;
+  margin-top: 60px;
+}
+
+body button {
+  font-size: 20px;
+  font-family: 'Espionage';
+  background-color: rgb(248, 248, 248);
+  color: rgb(0, 0, 0);
+  padding: 10px 20px;
+  border: 0;
+  box-shadow: 0;
+  border-radius: 10px;
+  margin: 30px;
+  height: 50px;
+  width: 300px;
+  border: 1px rgb(0, 0, 0) solid;
+  box-shadow: 10px 10px 10px 2px #201f1f;
+}
+
+canvas {
+  border: 3px rgb(173, 168, 168) solid;
+  border-radius: 20px;
+}
