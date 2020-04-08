@@ -34,7 +34,7 @@ class Board {
   }
   animateStartScreen(color) {
     ctx.fillStyle = '#000000';
-    ctx.fillRect(66, 125, 500, 40);
+    ctx.fillRect(66, 125, 500, 46);
     ctx.fillStyle = color;
     ctx.font = '55px Espionage';
     ctx.fillText('start game', 80, 160);
@@ -147,6 +147,6 @@ const updategame = () => {
     board.animateInstructionsScreen(color);
   }
   if (board.state === 'battlefield') {
-    board.battlefield();
+    board.battlefieldLoadScreen();
   }
 };

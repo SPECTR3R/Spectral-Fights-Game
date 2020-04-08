@@ -22,15 +22,6 @@ body {
   background-attachment: fixed;
 }
 
-h1 {
-  color: rgb(255, 255, 255);
-  font-size: 35px;
-  font-family: 'MGS2 Menu';
-  text-transform: uppercase;
-  margin-top: 60px;
-}
-
-
 canvas {
   border: 3px rgb(173, 168, 168) solid;
   border-radius: 20px;
