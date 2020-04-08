@@ -9,54 +9,62 @@ class Board {
     this.width = canvas.width;
     this.height = canvas.height;
     this.speed = 1;
-
     // Animation state properties
     this.state = 'load';
     this.interval = undefined;
-
-    // image properties
-    this.imgLine = new Image();
-    this.imgLine.src = ' ./images/line.png';
+    // Image of battlefield screen
+    this.imgBattlefield = new Image();
+    this.imgBattlefield.src = ' ./images/battlefieldBG.jpg';
+    // Image of instructions screen
+    this.imgInstruc = new Image();
+    this.imgInstruc.src = ' ./images/instructionScreenBG.svg';
+    // Image of start screen
     this.imgSrtart = new Image();
-    this.imgSrtart.src = ' ./images/grayFox.jpg';
+    this.imgSrtart.src = ' ./images/startScreenBG.svg';
+    // Inmediately load start screen
     this.imgSrtart.onload = () => {
-      this.loadScreen();
+      this.startScreen();
     };
   }
 
+  // Start screen methods
+  startScreen() {
+    this.clean();
+    ctx.drawImage(this.imgSrtart, 0, 0);
+  }
+  animateStartScreen(color) {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(66, 125, 500, 40);
+    ctx.fillStyle = color;
+    ctx.font = '55px Espionage';
+    ctx.fillText('start game', 80, 160);
+  }
+  // Instruction screen methods
+  instructionsScreen() {
+    this.clean();
+    ctx.drawImage(this.imgInstruc, 0, 0);
+  }
+  animateInstructionsScreen(color) {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(620, 218, 140, 22);
+    ctx.fillStyle = color;
+    ctx.font = '30px Espionage';
+    ctx.fillText('BEGIN', 625, 238);
+  }
+  // Battlefield load screen methods
+  battlefieldLoadScreen() {
+    this.clean();
+    ctx.drawImage(this.imgBattlefield, 0, 0, this.width, this.height);
+  }
+  // Auxiliar methods
   clean() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-
-  loadScreen() {
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(this.imgSrtart, this.x + 100, this.y + 155);
-    ctx.drawImage(this.imgLine, 85, 140, 400, 1);
-    ctx.drawImage(this.imgLine, 85, 200, 400, 1);
-  }
-
-  AnimateLoadScreen(color) {
-
-    if (color.length<7) color = '#000000'
-
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(110, 150, 350, 40);
-    ctx.fillStyle = color;
-    ctx.font = '40px Espionage';
-    ctx.fillText('start game', 110, 180);
-  }
-
-  draw() {
-    this.x--;
-    if (this.x < -this.width) this.x = 0;
-    ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    ctx.drawImage(this.img, this.x + this.width, this.y, this.width, this.height);
-  }
-
   gameOver() {
     clearInterval(this.interval);
   }
-
+  gameRestart() {
+  }
   randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   }
@@ -71,30 +79,74 @@ let points = 0;
 let clickCoordinates;
 let dir = true;
 let color = '#ffffff';
-// Listeners
-canvas.addEventListener('mousedown', function (clientX) {
-  let rect = canvas.getBoundingClientRect();
-  clickCoordinates = [Math.floor(event.clientX - rect.left), Math.floor(event.clientY - rect.top)];
-  console.log(clickCoordinates);
-});
+let waiter = false;
 
+// Listeners
 window.onload = () => {
-  setTimeout((board.interval = setInterval(updategame, 1000 / 60)), 1000);
+  setTimeout((board.interval = setInterval(updategame, 1000 / 60)), 3000);
 };
 
 document.addEventListener('keydown', ({ keyCode }) => {
   // if (keyCode === 88) //do something;
 });
 
-// main functions
+canvas.addEventListener('mousedown', function (clientX) {
+  let rect = canvas.getBoundingClientRect();
+  clickCoordinates = [Math.floor(event.clientX - rect.left), Math.floor(event.clientY - rect.top)];
+  console.log(clickCoordinates);
+  if (
+    board.state === 'load' &&
+    clickCoordinates[0] > 80 &&
+    clickCoordinates[0] < 565 &&
+    clickCoordinates[1] > 120 &&
+    clickCoordinates[1] < 180
+  ) {
+    board.state = 'instructions';
+    frames = 0;
+  }
+  if (
+    board.state === 'instructionsAnimate' &&
+    clickCoordinates[0] > 620 &&
+    clickCoordinates[0] < 760 &&
+    clickCoordinates[1] > 220 &&
+    clickCoordinates[1] < 250
+  ) {
+    board.state = 'battlefield';
+    frames = 0;
+  }
+});
+
+let oscilateColor = (frames) => {
+  let num = Math.floor(127 * Math.cos(30 * frames) + 127);
+  let color = '#' + num.toString(16) + num.toString(16) + num.toString(16);
+  return color.length < 7 ? '#000000' : color;
+};
+
+// Main functions
 
 const updategame = () => {
-  if ((board.state = 'load')) {
-    if (frames === 0 || frames > 250) dir = dir ? false : true;
-    dir ? frames-=2 : frames+=2;
-    color = '#' + frames.toString(16) + frames.toString(16) + frames.toString(16);
-    board.AnimateLoadScreen(color);
+  if (board.state === 'load') {
+    frames += 0.001;
+    color = oscilateColor(frames);
+    board.animateStartScreen(color);
   }
-  /*else if(board.state = 'load'){}
-else if(board.state = 'load'){}*/
+  if (board.state === 'instructions') {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    frames++;
+    if (frames > 50) {
+      board.instructionsScreen();
+      board.state = 'instructionsAnimate';
+      frames = 0;
+      dir = true;
+    }
+  }
+  if (board.state === 'instructionsAnimate') {
+    frames += 0.001;
+    color = oscilateColor(frames);
+    board.animateInstructionsScreen(color);
+  }
+  if (board.state === 'battlefield') {
+    board.battlefield();
+  }
 };
