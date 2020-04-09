@@ -14,14 +14,12 @@
   font-family: 'MGS2 Menu';
   src: url('../fonts/MGS2\ Menu.TTF') format('truetype');
 }
-
 body {
   text-align: center;
   background-image: url('../images/bodyBG.jpg');
   background-size: cover;
   background-attachment: fixed;
 }
-
 canvas {
   border: 3px rgb(173, 168, 168) solid;
   border-radius: 20px;
