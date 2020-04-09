@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>move</title>
+  </head>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+  <body>
+    <canvas width="720" height="480"></canvas>
+  </body>
+</html>
+
+<script>
+  const canvas = document.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const friction = 0.8;
+  const keys = [];
+
+  class Hero {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.width = 50;
+      this.height = 50;
+      this.speed = 5;
+      this.velX = 0;
+      this.velY = 0;
+    }
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+
+  const hero1 = new Hero(10, 10, 'red');
+  const hero2 = new Hero(100, 50, 'blue');
+
+  function moveHero1() {
+    // hero 1
+    // keys
+    // up -> w [87]
+    // down -> s [83]
+    // left -> a [65]
+    // right -> d [68]
+
+    if (keys[68]) {
+      if (hero1.velX < hero1.speed) {
+        hero1.velX++;
+      }
+    }
+
+    if (keys[65]) {
+      if (hero1.velX > -hero1.speed) {
+        hero1.velX--;
+      }
+    }
+
+    if (keys[83]) {
+      if (hero1.velY < hero1.speed) {
+        hero1.velY++;
+      }
+    }
+
+    if (keys[87]) {
+      if (hero1.velY > -hero1.speed) {
+        hero1.velY--;
+      }
+    }
+
+    hero1.x += hero1.velX;
+    hero1.velX *= friction;
+
+    hero1.y += hero1.velY;
+    hero1.velY *= friction;
+
+    // FORMA FACIL
+    // if (keys[68]) {
+    //   hero1.x++
+    // }
+
+    // if (keys[65]) {
+    //   hero1.x--
+    // }
+
+    // if (keys[83]) {
+    //   hero1.y++
+    // }
+
+    // if (keys[87]) {
+    //   hero1.y--
+    // }
+  }
+
+  function moveHero2() {
+    // hero 1
+    // keys
+    // up -> arrow up [38]
+    // down -> arrow down [40]
+    // left -> arrow left [37]
+    // right -> arrow right [39]
+
+    if (keys[39]) {
+      if (hero2.velX < hero2.speed) {
+        hero2.velX++;
+      }
+    }
+
+    if (keys[37]) {
+      if (hero2.velX > -hero2.speed) {
+        hero2.velX--;
+      }
+    }
+
+    if (keys[40]) {
+      if (hero2.velY < hero2.speed) {
+        hero2.velY++;
+      }
+    }
+
+    if (keys[38]) {
+      if (hero2.velY > -hero2.speed) {
+        hero2.velY--;
+      }
+    }
+
+    hero2.x += hero2.velX;
+    hero2.velX *= friction;
+
+    hero2.y += hero2.velY;
+    hero2.velY *= friction;
+  }
+
+  setInterval(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hero1.draw();
+    hero2.draw();
+    moveHero1();
+    moveHero2();
+  }, 1000 / 60);
+
+  //Movimement listeners 
+  document.body.addEventListener('keydown', (e) => {
+    keys[e.keyCode] = true;
+  });
+  document.body.addEventListener('keyup', (e) => {
+    keys[e.keyCode] = false;
+  });
+</script>
