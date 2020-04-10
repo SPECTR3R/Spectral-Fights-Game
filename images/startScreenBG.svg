@@ -290,8 +290,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="331.44177"
-     inkscape:cy="159.87225"
+     inkscape:cx="202.39479"
+     inkscape:cy="158.45804"
      inkscape:document-units="mm"
      inkscape:current-layer="g1295"
      showgrid="false"
@@ -387,17 +387,18 @@
          cy="172.37195"
          rx="65"
          ry="0.25" />
-      <text
-         id="text321"
-         y="233.94077"
-         x="114.93178"
+      <g
+         aria-label="S"
          style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"><tspan
-           id="tspan319"
+         id="text321">
+        <path
+           sodipodi:type="inkscape:offset"
+           inkscape:radius="0"
+           inkscape:original="M 117.9707 221.16602 L 117.30859 224.12891 L 126.45312 224.12891 L 127.09375 221.16602 L 117.9707 221.16602 z M 117.06055 225.23242 L 116.33789 228.49805 L 121.36719 228.49805 L 120.94727 230.38477 L 115.92383 230.37891 L 115.13867 233.94141 L 124.26758 233.94141 L 126.20508 225.23242 L 117.06055 225.23242 z "
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.11111069px;font-family:'Metal Gear';-inkscape-font-specification:'Metal Gear';fill:#ffffff;stroke-width:0.26458332"
-           y="233.94077"
-           x="114.93178"
-           sodipodi:role="line">S</tspan></text>
+           id="path1100"
+           d="m 117.9707,221.16602 -0.66211,2.96289 h 9.14453 l 0.64063,-2.96289 z m -0.91015,4.0664 -0.72266,3.26563 h 5.0293 l -0.41992,1.88672 -5.02344,-0.006 -0.78516,3.5625 h 9.12891 l 1.9375,-8.70899 z" />
+      </g>
       <g
          transform="translate(18.389542,-42.113225)"
          aria-label="s"
@@ -485,17 +486,18 @@
            id="path291-0"
            d="m 93.548828,244.7168 -1.652344,2.9414 h 6.359375 l -0.476562,-2.9414 z m -2.080078,4.07812 -0.248047,0.36524 -4.693359,8.34375 h 4.445312 l 2.6875,-5.17383 h 1.308594 l 0.441406,5.16797 h 4.181641 l -1.177735,-8.70313 z" />
       </g>
-      <text
-         xml:space="preserve"
+      <g
+         aria-label="L"
          style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="118.40583"
-         y="215.37769"
-         id="text256-2"><tspan
-           sodipodi:role="line"
-           x="118.40583"
-           y="215.37769"
+         id="text256-2">
+        <path
+           sodipodi:type="inkscape:offset"
+           inkscape:radius="0"
+           inkscape:original="M 121.82422 202.60352 L 118.98438 215.37695 L 127.86523 215.37695 L 128.5957 212.07812 L 123.3125 212.08398 L 125.41992 202.60352 L 121.82422 202.60352 z "
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.11111069px;font-family:'Metal Gear';-inkscape-font-specification:'Metal Gear';fill:#ffffff;stroke-width:0.26458332"
-           id="tspan254-2">L</tspan></text>
+           id="path1106"
+           d="m 121.82422,202.60352 -2.83984,12.77343 h 8.88085 l 0.73047,-3.29883 -5.2832,0.006 2.10742,-9.48046 z" />
+      </g>
       <g
          aria-label="F"
          style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
