@@ -18,11 +18,19 @@ class Board {
     this.beginBlattleSound.volume = 0.3;
     this.battleMusic = new Audio('./audio/battleMusic.mp3');
     this.battleMusic.volume = 0.3;
+    this.gameOverMusic = new Audio('./audio/gameOverSound.mp3');
+    this.gameOverMusic.volume = 0.3;
 
     this.sound = true;
     // Animation state
     this.state = 'load';
     this.interval = undefined;
+    // Image game over
+    this.imgGameOver1 = new Image();
+    this.imgGameOver1.src = ' ./images/gameOver1.png';
+    this.imgGameOver2 = new Image();
+    this.imgGameOver2.src = ' ./images/gameOver2.png';
+
     // Image of battlefield screen
     this.imgBattlefield = new Image();
     this.imgBattlefield.src = ' ./images/battlefieldScreenBG.svg';
@@ -90,12 +98,10 @@ class Board {
     this.briefingMusic.load();
     if (this.sound) this.briefingMusic.play();
   }
-
   beginBlattle() {
     this.beginBlattleSound.load();
     if (this.sound) this.beginBlattleSound.play();
   }
-
   battleSound() {
     this.battleMusic.load();
     if (this.sound) this.battleMusic.play();
@@ -116,7 +122,11 @@ class Board {
   clean() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-  gameOver() {
+  gameOver(winner) {
+    const img = winner === 'player1' ? this.imgGameOver2 : this.imgGameOver1;
+    ctx.drawImage(img, 200, 200);
+    this.gameOverMusic.load();
+    if (this.sound) this.gameOverMusic.play();
     clearInterval(this.interval);
   }
   gameRestart() {}
@@ -129,8 +139,8 @@ class Fighter {
     // basic properties
     this.x = x;
     this.y = y;
-    this.width = 65;
-    this.height = 70;
+    this.width = 85;
+    this.height = 65;
     this.color = color;
     // Physical properties
     this.gravity = 0.98;
@@ -141,21 +151,34 @@ class Fighter {
     this.jumping = false;
     this.jumpStrength = 8;
     this.grounded = false;
+    //logic properties
+    this.lives = 3;
+    this.facing = 'right';
+    this.mode = 'normal';
+    this.hot = false;
+    this.shieldUp = false;
+    this.swordUp = false;
+    this.bullets = [];
     // Graphic properties
-    this.spriteRow = 0;
-    this.spriteCol = 0;
+    this.spriteRow = 1;
+    this.spriteCol = 1;
     this.img = new Image();
-    this.plataforms = [];
     this.img.src = this.costume();
+    this.plataforms = [];
+    this.bulletImgL = new Image();
+    this.bulletImgL.src = './images/bulletImgL.png';
+    this.bulletImgR = new Image();
+    this.bulletImgR.src = './images/bulletImgR.png';
+    this.lifeIndicatorImg = new Image();
+    this.lifeIndicatorImg.src = './images/lifeIndicator.png';
   }
-
   // Graphic methdos
   draw() {
     ctx.drawImage(
       this.img,
-      this.spriteCol * 45,
-      this.spriteRow * 48,
-      44,
+      (this.spriteCol - 1) * 61,
+      (this.spriteRow - 1) * 47,
+      61,
       47,
       this.x,
       this.y,
@@ -163,11 +186,21 @@ class Fighter {
       this.height
     );
   }
-
-  costume() {
-    return this.color ? './images/red.png' : './images/red.png';
+  drawLives() {
+    if (!this.color) {
+      for (let i = 0; i < this.lives; i++) {
+        ctx.drawImage(this.lifeIndicatorImg, 380 - i * 30, 33, 30, 30);
+      }
+    } else {
+      for (let i = 0; i < this.lives; i++) {
+        ctx.drawImage(this.lifeIndicatorImg, 430 + i * 30, 33, 30, 30);
+      }
+    }
   }
 
+  costume() {
+    return this.color ? './images/redCostume.png' : './images/blueCostume.png';
+  }
   // Movement method
   movefighter(keys) {
     // Up
@@ -183,8 +216,9 @@ class Fighter {
     // fighter 1: d ->  [68]
     // fighter 2: arrow right -> [39]
     if ((keys[68] && this.color) || (keys[39] && !this.color)) {
-      this.spriteRow = 0;
-      this.spriteCol = 1;
+      this.spriteRow = 1;
+      this.spriteCol = 2;
+      this.facing = 'right';
       if (this.velX < this.speed) {
         this.velX++;
       }
@@ -193,35 +227,46 @@ class Fighter {
     // fighter 1: a ->  [65]
     // fighter 2: arrow left -> [37]
     if ((keys[65] && this.color) || (keys[37] && !this.color)) {
-      this.spriteRow = 1;
-      this.spriteCol = 1;
+      this.spriteRow = 2;
+      this.spriteCol = 2;
+      this.facing = 'left';
       if (this.velX > -this.speed) {
         this.velX--;
       }
     }
-
-    /* 
     // Down
     // fighter 1: s ->  [83]
     // fighter 2: arrow down -> [40]
     if ((keys[83] && this.color) || (keys[40] && !this.color)) {
-      if (this.vel Y < this.speed) {
-        this.vel Y++;
+      if (!this.hot) this.mode = 'paper';
+    }
+
+    // Melee
+    // fighter 1: x ->  [88]
+    // fighter 2: k -> [75]
+    if ((keys[88] && this.color) || (keys[75] && !this.color)) {
+      if (!this.hot) this.mode = 'scissor';
+    }
+
+    // Shoot
+    // fighter 1: x ->  [67]
+    // fighter 2: k -> [76]
+    if ((keys[67] && this.color) || (keys[76] && !this.color)) {
+      if (!this.hot) {
+        this.bullets.push([this.x, this.y, this.facing]);
+        this.mode = 'rock';
       }
     }
-    */
 
-    //movimiento
+    //Movement
     this.x += this.velX;
     this.velX *= this.friction;
     //jump
     this.y += this.velY;
-
     this.velY += this.gravity;
-
     this.grounded = false;
     this.plataforms.map((platform) => {
-      const direction = collisionCheck(this, platform);
+      const direction = this.collisionCheck(this, platform);
       if (direction == 'left' || direction == 'right') {
         this.velX = 0;
       } else if (direction == 'bottom') {
@@ -235,18 +280,160 @@ class Fighter {
       this.velY = 0;
     }
   }
+  // skill methods
+  normal() {
+    this.hot = false;
+    this.shieldUp = false;
+    this.swordUp = false;
+    this.spriteRow = this.facing === 'right' ? 1 : 2;
+    this.spriteCol = 1;
+  }
+  paper() {
+    let fps = 12;
+    if (this.color) {
+      this.shieldUp = true;
+      if (this.hot === false) {
+        frames1 = 0;
+        this.hot = true;
+      }
+      this.spriteRow = this.facing === 'right' ? 7 : 8;
+      if (frames1 < fps) this.spriteCol = 1;
+      else if (frames1 < 1 * fps) this.spriteCol = 2;
+      else if (frames1 < 10 * fps) this.spriteCol = 3;
+      else if (frames1 < 20 * fps) {
+        this.shieldUp = false;
+        this.spriteRow = this.facing === 'right' ? 1 : 2;
+        this.spriteCol = 1;
+        ctx.font = '20px Metal Gear';
+        ctx.fillText('hot', this.x, this.y);
+      } else this.mode = 'normal';
+    } else {
+      this.shieldUp = true;
+      if (this.hot === false) {
+        frames1 = 0;
+        this.hot = true;
+      }
+      this.spriteRow = this.facing === 'right' ? 7 : 8;
+      if (frames1 < fps) this.spriteCol = 1;
+      else if (frames1 < 1 * fps) this.spriteCol = 2;
+      else if (frames1 < 10 * fps) this.spriteCol = 3;
+      else if (frames1 < 20 * fps) {
+        this.shieldUp = false;
+        this.spriteRow = this.facing === 'right' ? 1 : 2;
+        this.spriteCol = 1;
+        ctx.font = '20px Metal Gear';
+        ctx.fillText('hot', this.x, this.y);
+      } else this.mode = 'normal';
+    }
+  }
+  scissor() {
+    let fps = 12;
+    if (this.color) {
+      this.swordUp = true;
+      if (this.hot === false) {
+        frames1 = 0;
+        this.hot = true;
+      }
+      this.spriteRow = this.facing === 'right' ? 5 : 6;
+      if (frames1 < fps) this.spriteCol = 1;
+      else if (frames1 < 1 * fps) this.spriteCol = 2;
+      else if (frames1 < 2 * fps) this.spriteCol = 3;
+      else if (frames1 < 20 * fps) {
+        this.swordUp = false;
+        this.spriteRow = this.facing === 'right' ? 1 : 2;
+        this.spriteCol = 1;
+        ctx.font = '20px Metal Gear';
+        ctx.fillText('hot', this.x, this.y);
+      } else this.mode = 'normal';
+    } else {
+      this.swordUp = true;
+      if (this.hot === false) {
+        frames1 = 0;
+        this.hot = true;
+      }
+      this.spriteRow = this.facing === 'right' ? 5 : 6;
+      if (frames1 < fps) this.spriteCol = 1;
+      else if (frames1 < 1 * fps) this.spriteCol = 2;
+      else if (frames1 < 2 * fps) this.spriteCol = 3;
+      else if (frames1 < 20 * fps) {
+        this.swordUp = false;
+        this.spriteRow = this.facing === 'right' ? 1 : 2;
+        this.spriteCol = 1;
+        ctx.font = '20px Metal Gear';
 
-  // Colision methdos
-  crash(obstacle) {
-    if (
-      obstacle.x < this.x + this.width &&
-      obstacle.x + obstacle.width > this.x &&
-      obstacle.y < this.y + this.height &&
-      obstacle.height + obstacle.y > this.y
-    )
-      return true;
+        ctx.fillText('hot', this.x, this.y);
+      } else this.mode = 'normal';
+    }
+  }
+  rock() {
+    let fps = 12;
+    if (this.color) {
+      if (this.hot === false) {
+        frames1 = 0;
+        this.hot = true;
+      }
+      this.spriteRow = this.facing === 'right' ? 3 : 4;
+      if (frames1 < fps) this.spriteCol = 1;
+      else if (frames1 < 3 * fps) this.spriteCol = 2;
+      else if (frames1 < 4 * fps) this.spriteCol = 3;
+      else if (frames1 < 20 * fps) {
+        this.spriteRow = this.facing === 'right' ? 1 : 2;
+        this.spriteCol = 1;
+        ctx.font = '20px Metal Gear';
+        ctx.fillText('hot', this.x, this.y);
+      } else this.mode = 'normal';
+    } else {
+      if (this.hot === false) {
+        frames1 = 0;
+        this.hot = true;
+      }
+      this.spriteRow = this.facing === 'right' ? 3 : 4;
+      if (frames1 < fps) this.spriteCol = 1;
+      else if (frames1 < 3 * fps) this.spriteCol = 2;
+      else if (frames1 < 4 * fps) this.spriteCol = 3;
+      else if (frames1 < 20 * fps) {
+        this.spriteRow = this.facing === 'right' ? 1 : 2;
+        this.spriteCol = 1;
+        ctx.font = '20px Metal Gear';
+        ctx.fillText('hot', this.x, this.y);
+      } else this.mode = 'normal';
+    }
+  }
+  // Colision methods
+  collisionCheck(char, plat) {
+    const vectorX = char.x + char.width / 2 - (plat.x + plat.width / 2);
+    const vectorY = char.y + char.height / 2 - (plat.y + plat.height / 2);
+
+    const halfWidths = char.width / 2 + plat.width / 2;
+    const halfHeights = char.height / 2 + plat.height / 2;
+
+    let collisionDirection = null;
+
+    if (Math.abs(vectorX) < halfWidths && Math.abs(vectorY) < halfHeights) {
+      var offsetX = halfWidths - Math.abs(vectorX);
+      var offsetY = halfHeights - Math.abs(vectorY);
+      if (offsetX < offsetY) {
+        if (vectorX > 0) {
+          collisionDirection = 'left';
+          char.x += offsetX;
+        } else {
+          collisionDirection = 'right';
+          char.x -= offsetX;
+        }
+      } else {
+        if (vectorY > 0) {
+          collisionDirection = 'top';
+          char.y += offsetY;
+        } else {
+          collisionDirection = 'bottom';
+          char.y -= offsetY;
+        }
+      }
+    }
+    return collisionDirection;
   }
 }
+
 class Plataform {
   constructor(x, y, width, height) {
     this.x = x;
@@ -258,6 +445,9 @@ class Plataform {
 
 // Aux variables
 let frames = 0;
+let frames1 = 0;
+let frames2 = 0;
+
 let points = 0;
 let clickCoordinates;
 let dir = true;
@@ -266,24 +456,24 @@ let waiter = false;
 let keys = [];
 // Instances
 const board = new Board();
-const fighter1 = new Fighter(90, 250, true);
-const fighter2 = new Fighter(680, 240, false);
+const fighter1 = new Fighter(345, 458, true);
+const fighter2 = new Fighter(494, 240, false);
 // platforms
 // big plat
-fighter1.plataforms.push(new Plataform(53, 515, 725, 8));
-fighter2.plataforms.push(new Plataform(53, 515, 725, 8));
+fighter1.plataforms.push(new Plataform(53, 519, 725, 8));
+fighter2.plataforms.push(new Plataform(53, 519, 725, 8));
 // corner left plat
-fighter1.plataforms.push(new Plataform(65, 399, 100, 8));
-fighter2.plataforms.push(new Plataform(65, 399, 100, 8));
+fighter1.plataforms.push(new Plataform(65, 403, 80, 8));
+fighter2.plataforms.push(new Plataform(65, 403, 80, 8));
 // corner right plat
-fighter1.plataforms.push(new Plataform(675, 399, 100, 8));
-fighter2.plataforms.push(new Plataform(675, 399, 100, 8));
+fighter1.plataforms.push(new Plataform(695, 403, 100, 8));
+fighter2.plataforms.push(new Plataform(695, 403, 100, 8));
 // center left plat
-fighter1.plataforms.push(new Plataform(280, 310, 100, 8));
-fighter2.plataforms.push(new Plataform(280, 310, 100, 8));
+fighter1.plataforms.push(new Plataform(280, 313, 100, 8));
+fighter2.plataforms.push(new Plataform(280, 313, 100, 8));
 // center right plat
-fighter1.plataforms.push(new Plataform(465, 310, 100, 8));
-fighter2.plataforms.push(new Plataform(465, 310, 100, 8));
+fighter1.plataforms.push(new Plataform(465, 313, 100, 8));
+fighter2.plataforms.push(new Plataform(465, 313, 100, 8));
 
 // Event listenersd
 //    Load listener
@@ -360,6 +550,12 @@ canvas.addEventListener('mousedown', function (clientX) {
 function resetFrames() {
   frames = 0;
 }
+function resetFrames1() {
+  frames1 = 0;
+}
+function resetFrames2() {
+  frames2 = 0;
+}
 let oscilateColor = (frames) => {
   let num = Math.floor(127 * Math.cos(30 * frames) + 127);
   let color = '#' + num.toString(16) + num.toString(16) + num.toString(16);
@@ -372,7 +568,6 @@ const updategame = () => {
     frames++;
     color = oscilateColor(frames / 1000);
     board.animateStartScreen(color);
-    //fighter1.draw();
   }
   if (board.state === 'instructionsPause') {
     ctx.fillStyle = '#000000';
@@ -393,44 +588,106 @@ const updategame = () => {
     board.animateBattlefieldLoadScreen();
   }
   if (board.state === 'fight') {
+    frames++;
+    if (frames===100){
+      vulnerable1=true
+      vulnerable2=true
+    }
+    frames1++;
+    frames2++;
+
     board.animateBattlefieldScreen();
     fighter1.draw();
     fighter2.draw();
     fighter1.movefighter(keys);
-
     fighter2.movefighter(keys);
-  }
-};
+    fighter1.drawLives();
+    fighter2.drawLives();
 
-function collisionCheck(char, plat) {
-  const vectorX = char.x + char.width / 2 - (plat.x + plat.width / 2);
-  const vectorY = char.y + char.height / 2 - (plat.y + plat.height / 2);
+    if (fighter1.lives <= 0 || fighter2.y > canvas.height) {
+      board.battleMusic.muted=true
 
-  const halfWidths = char.width / 2 + plat.width / 2;
-  const halfHeights = char.height / 2 + plat.height / 2;
+      board.gameOver('player2');
+    }
+    if (fighter2.lives <= 0 || fighter1.y > canvas.height) {
+      board.battleMusic.muted=true
 
-  let collisionDirection = null;
+      board.gameOver('player1');
 
-  if (Math.abs(vectorX) < halfWidths && Math.abs(vectorY) < halfHeights) {
-    var offsetX = halfWidths - Math.abs(vectorX);
-    var offsetY = halfHeights - Math.abs(vectorY);
-    if (offsetX < offsetY) {
-      if (vectorX > 0) {
-        collisionDirection = 'left';
-        char.x += offsetX;
-      } else {
-        collisionDirection = 'right';
-        char.x -= offsetX;
-      }
-    } else {
-      if (vectorY > 0) {
-        collisionDirection = 'top';
-        char.y += offsetY;
-      } else {
-        collisionDirection = 'bottom';
-        char.y -= offsetY;
+    }
+    if (fighter1.mode === 'normal') fighter1.normal();
+    if (fighter2.mode === 'normal') fighter2.normal();
+    if (fighter1.mode === 'paper') fighter1.paper();
+    if (fighter2.mode === 'paper') fighter2.paper();
+    if (fighter1.mode === 'scissor') fighter1.scissor();
+    if (fighter2.mode === 'scissor') fighter2.scissor();
+    if (fighter1.mode === 'rock') fighter1.rock();
+    if (fighter2.mode === 'rock') fighter2.rock();
+
+    if (fighter1.swordUp === true && collition(fighter1, fighter2)) {
+      if (vulnerable2) {
+        fighter1.lives = fighter1.lives - 1;
+
+        vulnerable2 = false;
+        resetFrames()
       }
     }
+
+     if (fighter2.swordUp === true && collition(fighter2, fighter1)) {
+      if (vulnerable1) {
+        vulnerable1 = false;
+                fighter2.lives = fighter2.lives - 1;
+
+        resetFrames()
+      }
+    }
+
+    fighter1.bullets.forEach((bullet, index) => {
+      if (bullet[2] === 'left') {
+        ctx.drawImage(fighter1.bulletImgL, bullet[0] + 50, bullet[1] + 32, 10, 10);
+        bullet[0] -= 8;
+      } else {
+        ctx.drawImage(fighter1.bulletImgR, bullet[0] + 15, bullet[1] + 32, 10, 10);
+        bullet[0] += 8;
+      }
+      if (
+        fighter2.shieldUp === false &&
+        collition(fighter2, { x: bullet[0], y: bullet[1], width: 10, height: 10 })
+      ) {
+        fighter1.bullets.splice(index, 1);
+        fighter1.lives = fighter1.lives - 1;
+      }
+    });
+
+    fighter2.bullets.forEach((bullet, index) => {
+      if (bullet[2] === 'left') {
+        ctx.drawImage(fighter2.bulletImgL, bullet[0] + 50, bullet[1] + 32, 10, 10);
+        bullet[0] -= 8;
+      } else {
+        ctx.drawImage(fighter2.bulletImgR, bullet[0] + 15, bullet[1] + 32, 10, 10);
+        bullet[0] += 8;
+      }
+      if (
+        fighter1.shieldUp === false &&
+        collition(fighter1, { x: bullet[0], y: bullet[1], width: 10, height: 10 })
+      ) {
+        fighter2.bullets.splice(index, 1);
+        fighter2.lives = fighter2.lives - 1;
+      }
+    });
   }
-  return collisionDirection;
+};
+var vulnerable1 = true;
+var vulnerable2 = true;
+
+function collition(rect1, rect2) {
+  // console.log(rect1.y)
+  if (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.height + rect1.y > rect2.y
+  ) {
+    return true;
+  } else false;
 }
