@@ -1,1 +1,4 @@
-# Ironhack-Project-The-game
+# Spectral Fights Game 
+
+
+Just clone and open index.html
